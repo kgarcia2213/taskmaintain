@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskMaintain</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:," />
+</head>
+<body>
+  <div id="app">
+    <div id="login-screen">
+      <h1>TaskMaintain</h1>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Correo" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Iniciar Sesión</button>
+      </form>
+      <button id="register-btn">¿No tienes cuenta? Regístrate</button>
+      <p id="auth-message"></p>
+    </div>
+
+    <div id="main-app" class="hidden">
+      <header>
+        <h1>TaskMaintain</h1>
+        <button id="logout">Cerrar sesión</button>
+      </header>
+
+      <nav>
+        <button id="nav-dashboard">Dashboard</button>
+        <button id="nav-calendar">Calendario</button>
+        <button id="nav-tasks">Mis Tareas</button>
+        <button id="nav-users">Usuarios</button>
+      </nav>
+
+      <main>
+        <!-- Dashboard -->
+        <section id="dashboard" class="screen">
+          <h2>Dashboard</h2>
+          <div class="stats">
+            <div class="stat-card"><strong id="total-tasks">0</strong> Tareas Totales</div>
+            <div class="stat-card"><strong id="pending-tasks">0</strong> Pendientes</div>
+            <div class="stat-card"><strong id="overdue-tasks">0</strong> Atrasadas</div>
+            <div class="stat-card"><strong id="completed-tasks">0</strong> Completadas</div>
+          </div>
+          <button id="export-pdf">Exportar PDF del Dashboard</button>
+        </section>
+
+        <!-- Calendario -->
+        <section id="calendar" class="screen hidden">
+          <h2>Calendario de Mantenimientos</h2>
+          <div id="calendar-days"></div>
+        </section>
+
+        <!-- Tareas -->
+        <section id="tasks" class="screen hidden">
+          <h2>Mis Tareas</h2>
+          <form id="task-form">
+            <input type="text" id="task-title" placeholder="Título" required />
+            <textarea id="task-desc" placeholder="Descripción"></textarea>
+            <input type="datetime-local" id="task-start" required />
+            <input type="datetime-local" id="task-end" required />
+            <textarea id="task-notes" placeholder="Observaciones"></textarea>
+            <button type="submit">Guardar Tarea</button>
+          </form>
+          <div id="task-list">Cargando...</div>
+        </section>
+
+        <!-- Usuarios -->
+        <section id="users" class="screen hidden">
+          <h2>Buscar Usuarios</h2>
+          <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
+          <div id="user-list"></div>
+          <button id="export-user-pdf">Exportar PDF de Usuarios</button>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
