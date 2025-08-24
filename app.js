@@ -320,3 +320,56 @@ function showScreen(screen) {
 
 // Iniciar la app
 checkUser();
+
+// Elementos del modal
+const addUserBtn = document.getElementById('add-user-btn');
+const userModal = document.getElementById('user-modal');
+const addUserForm = document.getElementById('add-user-form');
+const cancelUserBtn = document.getElementById('cancel-user');
+
+// Mostrar modal
+addUserBtn.addEventListener('click', () => {
+  userModal.classList.remove('hidden');
+});
+
+// Cerrar modal
+cancelUserBtn.addEventListener('click', () => {
+  userModal.classList.add('hidden');
+  addUserForm.reset();
+});
+
+// Guardar usuario
+addUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const empresa = document.getElementById('empresa').value.trim();
+
+  // Validar campos
+  if (!nombre || !apellido || !email) {
+    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Por favor, ingresa un correo válido');
+    return;
+  }
+
+  // Insertar en la tabla 'perfiles'
+  const { error } = await supabase.from('perfiles').insert([
+    { nombre, apellido, email, empresa }
+  ]);
+
+  if (error) {
+    alert('Error al guardar el usuario: ' + error.message);
+  } else {
+    alert('✅ Usuario agregado con éxito');
+    userModal.classList.add('hidden');
+    addUserForm.reset();
+    loadUsers(); // Actualiza la lista
+  }
+});
