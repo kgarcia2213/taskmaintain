@@ -338,25 +338,7 @@ const addUserBtn = document.getElementById('add-user-btn');
 const addUserForm = document.getElementById('add-user-form');
 const cancelUserBtn = document.getElementById('cancel-user');
 
-// Mostrar modal al hacer clic en "Agregar Usuario"
-addUserBtn.addEventListener('click', () => {
-  userModal.classList.remove('hidden');
-});
 
-// Cerrar modal al hacer clic en "Cancelar"
-cancelUserBtn?.addEventListener('click', () => {
-  userModal.classList.add('hidden');
-  addUserForm.reset();
-});
-
-
-// Cerrar modal si se hace clic fuera del contenido
-window.addEventListener('click', (e) => {
-  if (e.target === userModal) {
-    userModal.classList.add('hidden');
-    addUserForm.reset();
-  }
-});
 
 // Guardar nuevo usuario
 addUserForm.addEventListener('submit', async (e) => {
