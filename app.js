@@ -1,13 +1,21 @@
-import { supabase } from './lib/supabaseClient.js';
+// Cargar Supabase desde CDN con soporte para módulos
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Elementos
+// 🔢 Reemplaza con tus datos de Supabase
+const supabaseUrl = 'https://yqltoqrzeorkcetvqeud.supabase.co'; // Ej: https://abc123def456.supabase.co
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxbHRvcXJ6ZW9ya2NldHZxZXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5ODM3ODQsImV4cCI6MjA3MTU1OTc4NH0.4jlDs7B9lo1WDQ5spDeyP--lYmqiAH6w6CfT9P4Z6Fk'; // Ve a: Settings → API en Supabase
+
+// Crear cliente de Supabase
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Elementos del DOM
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
 const loginScreen = document.getElementById('login-screen');
 const mainApp = document.getElementById('main-app');
 const logoutBtn = document.getElementById('logout');
 
-// Screens
+// Pantallas
 const dashboard = document.getElementById('dashboard');
 const calendar = document.getElementById('calendar');
 const tasks = document.getElementById('tasks');
@@ -23,28 +31,32 @@ const pendingTasks = document.getElementById('pending-tasks');
 const overdueTasks = document.getElementById('overdue-tasks');
 const completedTasks = document.getElementById('completed-tasks');
 
-// Task form
+// Formulario de tareas
 const taskForm = document.getElementById('task-form');
 const taskList = document.getElementById('task-list');
 
-// User search
+// Búsqueda de usuarios
 const searchUser = document.getElementById('search-user');
 const userList = document.getElementById('user-list');
 
-// PWA
+// PWA: Registrar service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js');
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('Service Worker registrado'))
+    .catch(err => console.log('Error al registrar SW:', err));
 }
 
-// Autenticación
+// Verificar sesión del usuario
 async function checkUser() {
-  const { data } = await supabase.auth.getSession();
-  if (data.session) {
-    showApp(data.session.user);
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session) {
+    showApp(session.user);
   } else {
     showLogin();
   }
 
+  // Escuchar cambios de autenticación
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
       showApp(session.user);
@@ -54,11 +66,13 @@ async function checkUser() {
   });
 }
 
+// Mostrar pantalla de login
 function showLogin() {
   loginScreen.classList.remove('hidden');
   mainApp.classList.add('hidden');
 }
 
+// Mostrar app principal
 function showApp(user) {
   loginScreen.classList.add('hidden');
   mainApp.classList.remove('hidden');
@@ -68,35 +82,75 @@ function showApp(user) {
   loadUsers();
 }
 
-// Login y Registro
+// Iniciar sesión
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
+  // Limpiar mensaje
+  authMessage.textContent = '';
+  authMessage.style.color = 'black';
+
   const { error } = await supabase.auth.signInWithPassword({ email, password });
+
   if (error) {
     authMessage.textContent = error.message;
+    authMessage.style.color = 'red';
   }
 });
 
+// Botón de registro: ahora muestra mensaje si falta correo/contraseña
 document.getElementById('register-btn').addEventListener('click', async () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const email = emailInput.value;
+  const password = passwordInput.value;
 
+  // Limpiar mensaje anterior
+  authMessage.textContent = '';
+  authMessage.style.color = 'black';
+
+  // Validaciones
+  if (!email || !password) {
+    authMessage.textContent = 'Por favor, ingresa tu correo y contraseña';
+    authMessage.style.color = 'red';
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    authMessage.textContent = 'Por favor, ingresa un correo válido';
+    authMessage.style.color = 'red';
+    return;
+  }
+
+  if (password.length < 6) {
+    authMessage.textContent = 'La contraseña debe tener al menos 6 caracteres';
+    authMessage.style.color = 'red';
+    return;
+  }
+
+  // Intentar registro
   const { error } = await supabase.auth.signUp({ email, password });
+
   if (error) {
     authMessage.textContent = error.message;
+    authMessage.style.color = 'red';
   } else {
-    authMessage.textContent = 'Revisa tu correo para confirmar';
+    authMessage.textContent = '✅ ¡Registro exitoso! Revisa tu correo para confirmar la cuenta.';
+    authMessage.style.color = 'green';
+    emailInput.value = '';
+    passwordInput.value = '';
   }
 });
 
+// Cerrar sesión
 logoutBtn.addEventListener('click', async () => {
   await supabase.auth.signOut();
 });
 
-// Tareas
+// Guardar nueva tarea
 taskForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const title = document.getElementById('task-title').value;
@@ -105,17 +159,19 @@ taskForm.addEventListener('submit', async (e) => {
   const end = document.getElementById('task-end').value;
   const notes = document.getElementById('task-notes').value;
 
-  const { error } = await supabase.from('tareas').insert([{ 
-    titulo: title, 
-    descripcion: desc, 
-    fecha_inicio: start, 
-    fecha_fin: end, 
-    observaciones: notes, 
-    usuario_id: supabase.auth.user()?.id, 
-    estado: 'pendiente' 
+  const { error } = await supabase.from('tareas').insert([{
+    titulo: title,
+    descripcion: desc,
+    fecha_inicio: start,
+    fecha_fin: end,
+    observaciones: notes,
+    usuario_id: supabase.auth.user()?.id,
+    estado: 'pendiente'
   }]);
 
-  if (!error) {
+  if (error) {
+    alert('Error al guardar: ' + error.message);
+  } else {
     taskForm.reset();
     loadTasks();
     loadCalendar();
@@ -123,24 +179,37 @@ taskForm.addEventListener('submit', async (e) => {
   }
 });
 
+// Cargar lista de tareas
 async function loadTasks() {
-  const { data } = await supabase.from('tareas').select().order('fecha_inicio', { ascending: false });
-  taskList.innerHTML = data?.map(t => `
-    <div class="task-item ${isOverdue(t.fecha_fin) && t.estado !== 'completado' ? 'overdue' : ''} ${t.estado === 'completado' ? 'completed' : ''}">
+  const { data, error } = await supabase.from('tareas').select();
+  if (error) {
+    taskList.innerHTML = 'Error al cargar tareas.';
+    return;
+  }
+
+  taskList.innerHTML = data.map(t => `
+    <div class="task-item ${new Date(t.fecha_fin) < new Date() && t.estado !== 'completado' ? 'overdue' : ''}">
       <strong>${t.titulo}</strong><br>
       ${t.descripcion} <br>
       ${formatDate(t.fecha_inicio)} → ${formatDate(t.fecha_fin)} <br>
       <small>Estado: ${t.estado}</small><br>
-      <button onclick="editTask('${t.id}', '${t.observaciones}')">Editar</button>
+      <button onclick="editTask('${t.id}', '${t.observaciones || ''}')">Editar</button>
     </div>
   `).join('');
 }
 
-function isOverdue(date) {
-  return new Date(date) < new Date() && new Date(date).setHours(0,0,0,0) !== new Date().setHours(0,0,0,0);
+// Formato de fecha legible
+function formatDate(date) {
+  return new Date(date).toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
-// Edición de tareas
+// Editar tarea
 window.editTask = async (id, notes) => {
   const newNotes = prompt('Observaciones:', notes);
   if (newNotes !== null) {
@@ -149,11 +218,12 @@ window.editTask = async (id, notes) => {
   }
 };
 
-// Calendario
+// Cargar calendario (vista básica de 35 días)
 function loadCalendar() {
   const days = document.getElementById('calendar-days');
   days.innerHTML = '';
   const today = new Date();
+
   for (let i = 0; i < 35; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() - 14 + i);
@@ -162,38 +232,41 @@ function loadCalendar() {
     dayEl.textContent = date.getDate();
     dayEl.dataset.date = date.toISOString().split('T')[0];
 
-    // Verificar si hay tareas
-    const hasTask = false; // Aquí puedes agregar lógica real
-    if (hasTask) dayEl.classList.add('has-task');
-
+    // Aquí podrías marcar días con tareas
+    // Por ahora, solo muestra el día
     dayEl.addEventListener('click', () => {
       alert(`Tareas programadas para ${dayEl.dataset.date}`);
     });
-
     days.appendChild(dayEl);
   }
 }
 
-// Dashboard
+// Cargar estadísticas en el dashboard
 async function loadStats() {
   const { data } = await supabase.from('tareas').select('estado, fecha_fin');
   const now = new Date();
 
-  totalTasks.textContent = data?.length || 0;
-  pendingTasks.textContent = data?.filter(t => t.estado === 'pendiente').length || 0;
-  completedTasks.textContent = data?.filter(t => t.estado === 'completado').length || 0;
-  overdueTasks.textContent = data?.filter(t => t.estado === 'pendiente' && new Date(t.fecha_fin) < now).length || 0;
+  const total = data?.length || 0;
+  const pending = data?.filter(t => t.estado === 'pendiente').length || 0;
+  const completed = data?.filter(t => t.estado === 'completado').length || 0;
+  const overdue = data?.filter(t => t.estado === 'pendiente' && new Date(t.fecha_fin) < now).length || 0;
+
+  totalTasks.textContent = total;
+  pendingTasks.textContent = pending;
+  completedTasks.textContent = completed;
+  overdueTasks.textContent = overdue;
 }
 
-// Búsqueda de usuarios
+// Cargar y buscar usuarios
 async function loadUsers() {
   const { data } = await supabase.from('perfiles').select();
-  renderUsers(data);
+
+  if (data) renderUsers(data);
 
   searchUser.addEventListener('input', () => {
     const term = searchUser.value.toLowerCase();
-    const filtered = data.filter(u => 
-      (u.nombre || '').toLowerCase().includes(term) || 
+    const filtered = data.filter(u =>
+      (u.nombre || '').toLowerCase().includes(term) ||
       (u.apellido || '').toLowerCase().includes(term)
     );
     renderUsers(filtered);
@@ -208,16 +281,15 @@ function renderUsers(users) {
   `).join('');
 }
 
-// Generación de PDF (usa jsPDF)
+// Exportar PDF (simulado - en producción usa jsPDF)
 document.getElementById('export-pdf').addEventListener('click', () => {
-  alert('PDF del dashboard generado (usa jsPDF en producción)');
+  alert('Función: Generar PDF del dashboard (usa jsPDF en producción)');
 });
-
 document.getElementById('export-user-pdf').addEventListener('click', () => {
-  alert('PDF de usuarios generado');
+  alert('Función: Generar PDF de usuarios');
 });
 
-// Navegación
+// Navegación entre pantallas
 navDashboard.addEventListener('click', () => showScreen(dashboard));
 navCalendar.addEventListener('click', () => showScreen(calendar));
 navTasks.addEventListener('click', () => showScreen(tasks));
@@ -228,10 +300,5 @@ function showScreen(screen) {
   screen.classList.remove('hidden');
 }
 
-// Formato de fecha
-function formatDate(date) {
-  return new Date(date).toLocaleString();
-}
-
-// Iniciar app
+// Iniciar la app
 checkUser();
