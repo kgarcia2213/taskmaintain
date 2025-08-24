@@ -385,7 +385,7 @@ addUserForm.addEventListener('submit', async (e) => {
     alert('Error al guardar el usuario: ' + error.message);
   } else {
     alert('✅ Usuario agregado con éxito');
-    addUserModal.classList.add('hidden');
+    userModal.classList.add('hidden');
     addUserForm.reset();
     loadUsers(); // Actualiza la lista
   }
