@@ -290,32 +290,6 @@ async function loadUsers() {
   }
 }
 
-function renderUsers(users) {
-  const userContainer = document.getElementById('user-list');
-  const noUsersMessage = document.querySelector('.no-users-message');
-
-  if (!noUsersMessage) {
-    console.warn('Advertencia: No se encontró .no-users-message. Verifica el HTML.');
-    return;
-  }
-
-  if (users.length === 0) {
-    userContainer.innerHTML = '';
-    noUsersMessage.classList.remove('hidden');
-  } else {
-    noUsersMessage.classList.add('hidden');
-    userContainer.innerHTML = users.map(u => `
-      <div class="user-card">
-        <div class="user-info">
-          <h3>${u.nombre} ${u.apellido}</h3>
-          <p>${u.empresa || 'Sin empresa'}</p>
-          <p>${u.email}</p>
-        </div>
-        <button class="informe-btn"><span>📄</span> Informe</button>
-      </div>
-    `).join('');
-  }
-}
 
 // Exportar PDF (simulado)
 document.getElementById('export-pdf').addEventListener('click', () => {
