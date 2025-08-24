@@ -37,6 +37,29 @@ const cancelUserBtn = document.getElementById('cancel-user');
 const searchUser = document.getElementById('search-user');
 const userList = document.getElementById('user-list');
 
+
+// Solo si los elementos existen, agrega los eventos
+if (addUserBtn && userModal) {
+  addUserBtn.addEventListener('click', () => {
+    userModal.classList.remove('hidden');
+  });
+}
+
+if (cancelUserBtn && userModal) {
+  cancelUserBtn.addEventListener('click', () => {
+    userModal.classList.add('hidden');
+    document.getElementById('add-user-form').reset();
+  });
+}
+
+// Cerrar modal si se hace clic fuera del contenido
+window.addEventListener('click', (e) => {
+  if (e.target === userModal) {
+    userModal.classList.add('hidden');
+    document.getElementById('add-user-form').reset();
+  }
+});
+
 // PWA
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js')
