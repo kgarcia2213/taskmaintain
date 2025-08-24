@@ -8,6 +8,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // Crear cliente de Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+
 // Elementos del DOM
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
@@ -35,9 +36,13 @@ const completedTasks = document.getElementById('completed-tasks');
 const taskForm = document.getElementById('task-form');
 const taskList = document.getElementById('task-list');
 
-// Búsqueda de usuarios
+// Búsqueda y gestión de usuarios
 const searchUser = document.getElementById('search-user');
 const userList = document.getElementById('user-list');
+const addUserBtn = document.getElementById('add-user-btn');
+const userModal = document.getElementById('user-modal');
+const addUserForm = document.getElementById('add-user-form');
+const cancelUserBtn = document.getElementById('cancel-user');
 
 // PWA: Registrar service worker
 if ('serviceWorker' in navigator) {
@@ -47,6 +52,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // Verificar sesión del usuario
+// Verificar sesión del usuario
 async function checkUser() {
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -55,7 +61,7 @@ async function checkUser() {
   } else {
     showLogin();
   }
-
+  
   // Escuchar cambios de autenticación
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
@@ -85,8 +91,8 @@ function showApp(user) {
 // Iniciar sesión
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
 
   // Limpiar mensaje
   authMessage.textContent = '';
@@ -100,10 +106,10 @@ loginForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Botón de registro: ahora muestra mensaje si falta correo/contraseña
+// Botón de registro: valida y registra con Supabase Auth
 document.getElementById('register-btn').addEventListener('click', async () => {
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
   const email = emailInput.value;
   const password = passwordInput.value;
 
@@ -138,7 +144,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     authMessage.textContent = error.message;
     authMessage.style.color = 'red';
   } else {
-    authMessage.textContent = '✅ ¡Registro exitoso! Revisa tu correo para confirmar la cuenta.';
+    authMessage.textContent = '✅ ¡Registro exitoso! Revisa tu correo para confirmar.';
     authMessage.style.color = 'green';
     emailInput.value = '';
     passwordInput.value = '';
@@ -232,8 +238,6 @@ function loadCalendar() {
     dayEl.textContent = date.getDate();
     dayEl.dataset.date = date.toISOString().split('T')[0];
 
-    // Aquí podrías marcar días con tareas
-    // Por ahora, solo muestra el día
     dayEl.addEventListener('click', () => {
       alert(`Tareas programadas para ${dayEl.dataset.date}`);
     });
@@ -277,18 +281,16 @@ function renderUsers(users) {
   const userContainer = document.getElementById('user-list');
   const noUsersMessage = document.querySelector('.no-users-message');
 
-    // ✅ Verifica que el elemento exista antes de usarlo
+  // ✅ Validar que el elemento exista
   if (!noUsersMessage) {
-    console.error('Elemento .no-users-message no encontrado en el DOM');
+    console.warn('Advertencia: No se encontró el elemento .no-users-message. Verifica el HTML.');
     return;
   }
 
   if (users.length === 0) {
-    // Mostrar mensaje si no hay usuarios
-    noUsersMessage.classList.remove('hidden');
     userContainer.innerHTML = '';
+    noUsersMessage.classList.remove('hidden');
   } else {
-    // Ocultar mensaje y mostrar usuarios
     noUsersMessage.classList.add('hidden');
     userContainer.innerHTML = users.map(u => `
       <div class="user-card">
@@ -305,7 +307,7 @@ function renderUsers(users) {
   }
 }
 
-// Exportar PDF (simulado - en producción usa jsPDF)
+// Exportar PDF (simulado)
 document.getElementById('export-pdf').addEventListener('click', () => {
   alert('Función: Generar PDF del dashboard (usa jsPDF en producción)');
 });
@@ -324,36 +326,27 @@ function showScreen(screen) {
   screen.classList.remove('hidden');
 }
 
-// Iniciar la app
-checkUser();
-
-// Elementos del modal
-const addUserBtn = document.getElementById('add-user-btn');
-const userModal = document.getElementById('user-modal');
-const addUserForm = document.getElementById('add-user-form');
-const cancelUserBtn = document.getElementById('cancel-user');
-
-// Mostrar modal
+// Botón "Agregar Usuario"
 addUserBtn.addEventListener('click', () => {
   userModal.classList.remove('hidden');
 });
 
-// Cerrar modal
+// Cancelar y cerrar modal
 cancelUserBtn.addEventListener('click', () => {
   userModal.classList.add('hidden');
   addUserForm.reset();
 });
 
-// Guardar usuario
+// Guardar nuevo usuario
 addUserForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const nombre = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
-  const email = document.getElementById('emailuser').value.trim();
+  const email = document.getElementById('add-user-email').value.trim();
   const empresa = document.getElementById('empresa').value.trim();
 
-  // Validar campos
+  // Validaciones
   if (!nombre || !apellido || !email) {
     alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
     return;
@@ -366,9 +359,7 @@ addUserForm.addEventListener('submit', async (e) => {
   }
 
   // Insertar en la tabla 'perfiles'
-  const { error } = await supabase.from('perfiles').insert([
-    { nombre, apellido, email, empresa }
-  ]);
+  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
 
   if (error) {
     alert('Error al guardar el usuario: ' + error.message);
@@ -379,3 +370,6 @@ addUserForm.addEventListener('submit', async (e) => {
     loadUsers(); // Actualiza la lista
   }
 });
+
+// Iniciar la app
+checkUser();
