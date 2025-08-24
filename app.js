@@ -274,11 +274,29 @@ async function loadUsers() {
 }
 
 function renderUsers(users) {
-  userList.innerHTML = users.map(u => `
-    <div class="task-item">
-      ${u.nombre} ${u.apellido} - ${u.email}
-    </div>
-  `).join('');
+  const userContainer = document.getElementById('user-list');
+  const noUsersMessage = document.querySelector('.no-users-message');
+
+  if (users.length === 0) {
+    // Mostrar mensaje si no hay usuarios
+    noUsersMessage.classList.remove('hidden');
+    userContainer.innerHTML = '';
+  } else {
+    // Ocultar mensaje y mostrar usuarios
+    noUsersMessage.classList.add('hidden');
+    userContainer.innerHTML = users.map(u => `
+      <div class="user-card">
+        <div class="user-info">
+          <h3>${u.nombre} ${u.apellido}</h3>
+          <p>${u.empresa || u.nombre}</p>
+          <p>${u.email}</p>
+        </div>
+        <button class="informe-btn">
+          <span>📄</span> Informe
+        </button>
+      </div>
+    `).join('');
+  }
 }
 
 // Exportar PDF (simulado - en producción usa jsPDF)

@@ -71,7 +71,10 @@
         <section id="users" class="screen hidden">
           <h2>Buscar Usuarios</h2>
           <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
-          <div id="user-list"></div>
+          <div id="user-list">
+            <div class="no-users-message hidden">No existen usuarios aún configurados</div>
+            <!-- Los usuarios aparecerán aquí -->
+          </div>
           <button id="export-user-pdf">Exportar PDF de Usuarios</button>
         </section>
       </main>
