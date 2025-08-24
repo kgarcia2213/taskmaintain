@@ -149,7 +149,8 @@ navTasks.addEventListener('click', () => tasks.classList.remove('hidden'));
 navUsers.addEventListener('click', () => users.classList.remove('hidden'));
 
 // Modal de agregar usuario
-addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
+addUserBtn.addEventListener('click', () => {userModal.classList.remove('hidden')});
+
 cancelUserBtn.addEventListener('click', () => {
   userModal.classList.add('hidden');
   addUserForm.reset();
