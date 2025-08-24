@@ -1,3 +1,4 @@
+import { supabase } from './lib/supabaseClient.js';
 // Elementos del DOM
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
