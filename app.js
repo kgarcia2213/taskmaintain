@@ -29,10 +29,7 @@ const taskForm = document.getElementById('task-form');
 const taskList = document.getElementById('task-list');
 
 // Gestión de usuarios
-const addUserBtn = document.getElementById('add-user-btn');
-const userModal = document.getElementById('user-modal');
-const addUserForm = document.getElementById('add-user-form');
-const cancelUserBtn = document.getElementById('cancel-user');
+
 const searchUser = document.getElementById('search-user');
 const userList = document.getElementById('user-list');
 
@@ -328,59 +325,7 @@ document.getElementById('export-user-pdf').addEventListener('click', () => {
   alert('Función: Generar PDF de usuarios');
 });
 
-// Modal: Mostrar al hacer clic en "Agregar Usuario"
-if (addUserBtn && userModal) {
-  addUserBtn.addEventListener('click', () => {
-    userModal.classList.remove('hidden');
-  });
-}
 
-// Cerrar modal
-if (cancelUserBtn && userModal) {
-  cancelUserBtn.addEventListener('click', () => {
-    userModal.classList.add('hidden');
-    addUserForm.reset();
-  });
-}
-
-// Cerrar modal si se hace clic fuera
-window.addEventListener('click', (e) => {
-  if (e.target === userModal) {
-    userModal.classList.add('hidden');
-    addUserForm.reset();
-  }
-});
-
-// Guardar nuevo usuario
-addUserForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const nombre = document.getElementById('nombre').value.trim();
-  const apellido = document.getElementById('apellido').value.trim();
-  const email = document.getElementById('add-user-email').value.trim();
-  const empresa = document.getElementById('empresa').value.trim();
-
-  if (!nombre || !apellido || !email) {
-    alert('Completa todos los campos obligatorios');
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    alert('Correo inválido');
-    return;
-  }
-
-  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
-  if (error) {
-    alert('Error: ' + error.message);
-  } else {
-    alert('✅ Usuario agregado con éxito');
-    userModal.classList.add('hidden');
-    addUserForm.reset();
-    loadUsers();
-  }
-});
 
 // Iniciar la app
 checkUser();
