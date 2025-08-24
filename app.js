@@ -351,7 +351,7 @@ cancelUserBtn?.addEventListener('click', () => {
 
 // Cerrar modal si se hace clic fuera del contenido
 window.addEventListener('click', (e) => {
-  if (e.target === addUserModal) {
+  if (e.target === userModal) {
     userModal.classList.add('hidden');
     addUserForm.reset();
   }
