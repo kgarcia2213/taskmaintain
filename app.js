@@ -344,7 +344,7 @@ addUserForm.addEventListener('submit', async (e) => {
 
   const nombre = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
-  const email = document.getElementById('email').value.trim();
+  const email = document.getElementById('emailuser').value.trim();
   const empresa = document.getElementById('empresa').value.trim();
 
   // Validar campos
