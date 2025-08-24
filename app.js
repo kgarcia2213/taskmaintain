@@ -47,7 +47,7 @@ if ('serviceWorker' in navigator) {
 
 // Verificar sesión del usuario
 async function checkUser() {
-  const { data= { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     showApp(session.user);
   } else {
