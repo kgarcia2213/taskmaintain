@@ -1,5 +1,8 @@
 import { supabase } from './lib/supabaseClient.js';
 // Elementos del DOM
+const userModal = document.getElementById('user-modal');
+
+
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
 const loginScreen = document.getElementById('login-screen');
@@ -338,10 +341,11 @@ addUserBtn.addEventListener('click', () => {
 });
 
 // Cerrar modal al hacer clic en "Cancelar"
-cancelUserBtn.addEventListener('click', () => {
-  addUserModal.classList.add('hidden');
+cancelUserBtn?.addEventListener('click', () => {
+  userModal.classList.add('hidden');
   addUserForm.reset();
 });
+
 
 // Cerrar modal si se hace clic fuera del contenido
 window.addEventListener('click', (e) => {
