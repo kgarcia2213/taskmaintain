@@ -391,5 +391,67 @@ addUserForm.addEventListener('submit', async (e) => {
     loadUsers(); // Actualiza la lista
   }
 });
+
+// Elementos del formulario
+const toggleUserFormBtn = document.getElementById('toggle-user-form');
+const userFormContainer = document.getElementById('user-form-container');
+
+const cancelUserFormBtn = document.getElementById('cancel-user-form');
+
+// Alternar visibilidad del formulario y cambiar texto del botón
+toggleUserFormBtn.addEventListener('click', () => {
+  const isHidden = userFormContainer.classList.contains('hidden');
+  
+  userFormContainer.classList.toggle('hidden', !isHidden);
+  
+  // Cambiar texto del botón
+  if (isHidden) {
+    toggleUserFormBtn.textContent = 'Cerrar Formulario';
+  } else {
+    toggleUserFormBtn.textContent = '+ Agregar Usuario';
+  }
+});
+
+// Cerrar el formulario al hacer clic en "Cancelar"
+cancelUserFormBtn.addEventListener('click', () => {
+  userFormContainer.classList.add('hidden');
+  toggleUserFormBtn.textContent = '+ Agregar Usuario';
+  addUserForm.reset();
+});
+
+// Guardar nuevo usuario
+addUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const empresa = document.getElementById('empresa').value.trim();
+
+  // Validaciones
+  if (!nombre || !apellido || !email) {
+    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Por favor, ingresa un correo válido');
+    return;
+  }
+
+  // Guardar en Supabase
+  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
+
+  if (error) {
+    alert('Error al guardar el usuario: ' + error.message);
+  } else {
+    alert('✅ Usuario agregado con éxito');
+    addUserForm.reset();
+    userFormContainer.classList.add('hidden');
+    toggleUserFormBtn.textContent = '+ Agregar Usuario';
+    loadUsers(); // Actualiza la lista
+  }
+});
 // Iniciar la app
 checkUser();

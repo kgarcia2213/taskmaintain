@@ -67,30 +67,34 @@
        <!-- Sección Usuarios -->
         <section id="users" class="screen hidden">
         <h2>Usuarios</h2>
-        <button id="add-user-btn">+ Agregar Usuario</button>
-
-        <!-- Modal para agregar usuario -->
-        <div id="user-modal" class="modal hidden">
-            <div class="modal-content">
-            <h3>Agregar Nuevo Usuario</h3>
-            <form id="add-user-form">
-                <input type="text" id="nombre" placeholder="Nombre" required />
-                <input type="text" id="apellido" placeholder="Apellido" required />
-                <input type="email" id="add-user-email" placeholder="Correo" required />
-                <input type="text" id="empresa" placeholder="Empresa (opcional)" />
-                <div class="modal-buttons">
-                <button type="submit">Guardar</button>
-                <button type="button" id="cancel-user">Cancelar</button>
-                </div>
-            </form>
-            </div>
-        </div>
+         <!-- Búsqueda de usuarios -->
+        <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
 
         <!-- Lista de usuarios -->
-        <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
         <div id="user-list">
             <div class="no-users-message hidden">No existen usuarios aún configurados</div>
         </div>
+
+          <!-- Botón toggle: cambia entre "Agregar" y "Cerrar" -->
+        <button id="toggle-user-form" type="button">+ Agregar Usuario</button>
+
+        <!-- Formulario que aparece/oculta -->
+        <div id="user-form-container" class="form-container hidden">
+            <h3>Agregar Nuevo Usuario</h3>
+            <form id="add-user-form">
+            <input type="text" id="nombre" placeholder="Nombre" required />
+            <input type="text" id="apellido" placeholder="Apellido" required />
+            <input type="email" id="email" placeholder="Correo electrónico" required />
+            <input type="text" id="empresa" placeholder="Empresa (opcional)" />
+            <div class="form-buttons">
+                <button type="submit">Guardar Usuario</button>
+                <button type="button" id="cancel-user-form">Cancelar</button>
+            </div>
+            </form>
+        </div>
+
+
+  
         <button id="export-user-pdf">Exportar PDF de Usuarios</button>
         </section>
 
