@@ -6,7 +6,7 @@
   <title>TaskMaintain</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="," />
+  <link rel="icon" href="icon.png" />
 </head>
 <body>
   <div id="app">
@@ -14,8 +14,12 @@
     <div id="login-screen">
       <h1>TaskMaintain</h1>
       <form id="login-form">
+        <label for="login-email">Correo</label>
         <input type="email" id="login-email" placeholder="Correo" required autocomplete="email" />
+        
+        <label for="login-password">Contraseña</label>
         <input type="password" id="login-password" placeholder="Contraseña" required autocomplete="current-password" />
+        
         <button type="submit">Iniciar Sesión</button>
       </form>
       <button id="register-btn">¿No tienes cuenta? Regístrate</button>
@@ -30,10 +34,10 @@
       </header>
 
       <nav>
-        <button id="nav-dashboard">Dashboard</button>
-        <button id="nav-calendar">Calendario</button>
-        <button id="nav-tasks">Mis Tareas</button>
-        <button id="nav-users">Usuarios</button>
+        <button class="nav-btn" data-target="dashboard">Dashboard</button>
+        <button class="nav-btn" data-target="calendar">Calendario</button>
+        <button class="nav-btn" data-target="tasks">Mis Tareas</button>
+        <button class="nav-btn" data-target="users">Usuarios</button>
       </nav>
 
       <main>
