@@ -164,13 +164,14 @@ navTasks.addEventListener('click', () => {
 });
 
 navUsers.addEventListener('click', () => {
-// showScreen(users);
+showScreen(users);
   // ✅ Resetear: cerrar modal y limpiar formulario
-//  if (userModal) userModal.classList.add('hidden');
-//  if (addUserForm) addUserForm.reset();
-//  loadUsers();
-document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
-document.getElementById("users").classList.remove("hidden");
+ if (userModal) userModal.classList.add('hidden');
+ // Mostrar la sección de usuarios
+  [dashboard, calendar, tasks].forEach(s => s.classList.add('hidden'));
+  users.classList.remove('hidden');
+ // Recargar la lista de usuarios
+  loadUsers();
 });
 
 // Guardar nueva tarea
