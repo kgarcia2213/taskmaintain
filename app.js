@@ -338,7 +338,7 @@ addUserBtn.addEventListener('click', () => {
 });
 
 // Cerrar modal al hacer clic en "Cancelar"
-cancelAddUserBtn.addEventListener('click', () => {
+cancelUserBtn.addEventListener('click', () => {
   addUserModal.classList.add('hidden');
   addUserForm.reset();
 });
