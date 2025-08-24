@@ -66,6 +66,7 @@ button:hover {
   display: none;
 }
 
+/* Estadísticas */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -81,10 +82,12 @@ button:hover {
   font-size: 14px;
 }
 
+/* Calendario */
 #calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
+  margin-top: 10px;
 }
 
 .day {
@@ -99,6 +102,7 @@ button:hover {
   font-weight: bold;
 }
 
+/* Tareas */
 .task-item {
   border: 1px solid #eee;
   margin: 10px 0;
@@ -116,13 +120,7 @@ button:hover {
   text-decoration: line-through;
 }
 
-@media (max-width: 768px) {
-  nav button {
-    padding: 8px;
-    font-size: 14px;
-  }
-}
-
+/* Usuarios - Lista */
 .user-card {
   display: flex;
   justify-content: space-between;
@@ -164,14 +162,7 @@ button:hover {
   background: #c0392b;
 }
 
-.no-users-message {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-style: italic;
-}
-
-/* Modal para agregar usuario */
+/* Modal */
 .modal {
   position: fixed;
   top: 0;
@@ -199,10 +190,6 @@ button:hover {
   color: #333;
 }
 
-.modal-content input {
-  margin-bottom: 10px;
-}
-
 .modal-buttons {
   display: flex;
   gap: 10px;
@@ -217,4 +204,12 @@ button:hover {
 
 .modal-buttons button:first-child {
   background: #2d82f4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  nav button {
+    padding: 8px;
+    font-size: 14px;
+  }
 }
