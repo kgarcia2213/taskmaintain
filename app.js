@@ -52,7 +52,6 @@ if ('serviceWorker' in navigator) {
 }
 
 // Verificar sesión del usuario
-// Verificar sesión del usuario
 async function checkUser() {
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -61,7 +60,7 @@ async function checkUser() {
   } else {
     showLogin();
   }
-  
+
   // Escuchar cambios de autenticación
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
@@ -334,7 +333,7 @@ addUserBtn.addEventListener('click', () => {
 // Cancelar y cerrar modal
 cancelUserBtn.addEventListener('click', () => {
   userModal.classList.add('hidden');
-  addUserForm.reset();
+ document.getElementById('add-user-form').reset(); // Limpia el formulario
 });
 
 // Guardar nuevo usuario
