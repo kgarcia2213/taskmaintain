@@ -326,6 +326,63 @@ document.getElementById('export-user-pdf').addEventListener('click', () => {
 });
 
 
+// Elementos del modal de agregar usuario
+const addUserBtn = document.getElementById('add-user-btn');
+const addUserModal = document.getElementById('add-user-modal');
+const addUserForm = document.getElementById('add-user-form');
+const cancelAddUserBtn = document.getElementById('cancel-add-user');
 
+// Mostrar modal al hacer clic en "Agregar Usuario"
+addUserBtn.addEventListener('click', () => {
+  addUserModal.classList.remove('hidden');
+});
+
+// Cerrar modal al hacer clic en "Cancelar"
+cancelAddUserBtn.addEventListener('click', () => {
+  addUserModal.classList.add('hidden');
+  addUserForm.reset();
+});
+
+// Cerrar modal si se hace clic fuera del contenido
+window.addEventListener('click', (e) => {
+  if (e.target === addUserModal) {
+    addUserModal.classList.add('hidden');
+    addUserForm.reset();
+  }
+});
+
+// Guardar nuevo usuario
+addUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const empresa = document.getElementById('empresa').value.trim();
+
+  // Validaciones
+  if (!nombre || !apellido || !email) {
+    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Por favor, ingresa un correo válido');
+    return;
+  }
+
+  // Insertar en la tabla 'perfiles'
+  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
+
+  if (error) {
+    alert('Error al guardar el usuario: ' + error.message);
+  } else {
+    alert('✅ Usuario agregado con éxito');
+    addUserModal.classList.add('hidden');
+    addUserForm.reset();
+    loadUsers(); // Actualiza la lista
+  }
+});
 // Iniciar la app
 checkUser();
