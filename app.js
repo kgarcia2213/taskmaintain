@@ -277,6 +277,12 @@ function renderUsers(users) {
   const userContainer = document.getElementById('user-list');
   const noUsersMessage = document.querySelector('.no-users-message');
 
+    // ✅ Verifica que el elemento exista antes de usarlo
+  if (!noUsersMessage) {
+    console.error('Elemento .no-users-message no encontrado en el DOM');
+    return;
+  }
+
   if (users.length === 0) {
     // Mostrar mensaje si no hay usuarios
     noUsersMessage.classList.remove('hidden');
