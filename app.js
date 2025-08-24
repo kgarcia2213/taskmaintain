@@ -164,11 +164,13 @@ navTasks.addEventListener('click', () => {
 });
 
 navUsers.addEventListener('click', () => {
-  showScreen(users);
+// showScreen(users);
   // ✅ Resetear: cerrar modal y limpiar formulario
-  if (userModal) userModal.classList.add('hidden');
-  if (addUserForm) addUserForm.reset();
-  loadUsers();
+//  if (userModal) userModal.classList.add('hidden');
+//  if (addUserForm) addUserForm.reset();
+//  loadUsers();
+document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+document.getElementById("users").classList.remove("hidden");
 });
 
 // Guardar nueva tarea
@@ -331,13 +333,13 @@ document.getElementById('export-user-pdf').addEventListener('click', () => {
 
 // Elementos del modal de agregar usuario
 const addUserBtn = document.getElementById('add-user-btn');
-const addUserModal = document.getElementById('add-user-modal');
+//const addUserModal = document.getElementById('add-user-modal');
 const addUserForm = document.getElementById('add-user-form');
 const cancelUserBtn = document.getElementById('cancel-user');
 
 // Mostrar modal al hacer clic en "Agregar Usuario"
 addUserBtn.addEventListener('click', () => {
-  addUserModal.classList.remove('hidden');
+  userModal.classList.remove('hidden');
 });
 
 // Cerrar modal al hacer clic en "Cancelar"
@@ -350,7 +352,7 @@ cancelUserBtn?.addEventListener('click', () => {
 // Cerrar modal si se hace clic fuera del contenido
 window.addEventListener('click', (e) => {
   if (e.target === addUserModal) {
-    addUserModal.classList.add('hidden');
+    userModal.classList.add('hidden');
     addUserForm.reset();
   }
 });
