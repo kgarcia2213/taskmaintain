@@ -330,7 +330,7 @@ document.getElementById('export-user-pdf').addEventListener('click', () => {
 const addUserBtn = document.getElementById('add-user-btn');
 const addUserModal = document.getElementById('add-user-modal');
 const addUserForm = document.getElementById('add-user-form');
-const cancelAddUserBtn = document.getElementById('cancel-add-user');
+const cancelUserBtn = document.getElementById('cancel-user');
 
 // Mostrar modal al hacer clic en "Agregar Usuario"
 addUserBtn.addEventListener('click', () => {
