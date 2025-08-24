@@ -1,5 +1,6 @@
 import { supabase } from './lib/supabaseClient.js';
 
+
 // Elementos del DOM
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
@@ -46,13 +47,12 @@ if ('serviceWorker' in navigator) {
 
 // Verificar sesión del usuario
 async function checkUser() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data= { session } } = await supabase.auth.getSession();
   if (session) {
     showApp(session.user);
   } else {
     showLogin();
   }
-
 
   // Escuchar cambios de autenticación
   supabase.auth.onAuthStateChange((event, session) => {
@@ -86,7 +86,6 @@ loginForm.addEventListener('submit', async (e) => {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
 
-  // Limpiar mensaje
   authMessage.textContent = '';
   authMessage.style.color = 'black';
 
@@ -105,11 +104,9 @@ document.getElementById('register-btn').addEventListener('click', async () => {
   const email = emailInput.value;
   const password = passwordInput.value;
 
-  // Limpiar mensaje
   authMessage.textContent = '';
   authMessage.style.color = 'black';
 
-  // Validaciones
   if (!email || !password) {
     authMessage.textContent = 'Por favor, ingresa tu correo y contraseña';
     authMessage.style.color = 'red';
@@ -118,7 +115,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    authMessage.textContent = 'Por favor, ingresa un correo válido';
+    authMessage.textContent = 'Correo inválido';
     authMessage.style.color = 'red';
     return;
   }
@@ -129,14 +126,12 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     return;
   }
 
-  // Intentar registro
   const { error } = await supabase.auth.signUp({ email, password });
-
   if (error) {
     authMessage.textContent = error.message;
     authMessage.style.color = 'red';
   } else {
-    authMessage.textContent = '✅ ¡Registro exitoso! Revisa tu correo para confirmar.';
+    authMessage.textContent = '✅ Revisa tu correo para confirmar';
     authMessage.style.color = 'green';
     emailInput.value = '';
     passwordInput.value = '';
@@ -154,12 +149,28 @@ function showScreen(screen) {
   screen.classList.remove('hidden');
 }
 
-navDashboard.addEventListener('click', () => showScreen(dashboard));
-navCalendar.addEventListener('click', () => showScreen(calendar));
-navTasks.addEventListener('click', () => showScreen(tasks));
+// Navegación con reseteo de estado
+navDashboard.addEventListener('click', () => {
+  if (userModal) userModal.classList.add('hidden');
+  showScreen(dashboard);
+});
+
+navCalendar.addEventListener('click', () => {
+  if (userModal) userModal.classList.add('hidden');
+  showScreen(calendar);
+});
+
+navTasks.addEventListener('click', () => {
+  if (userModal) userModal.classList.add('hidden');
+  showScreen(tasks);
+});
+
 navUsers.addEventListener('click', () => {
   showScreen(users);
-  loadUsers(); // Carga la lista, pero NO muestra el modal
+  // ✅ Resetear: cerrar modal y limpiar formulario
+  if (userModal) userModal.classList.add('hidden');
+  if (addUserForm) addUserForm.reset();
+  loadUsers();
 });
 
 // Guardar nueva tarea
@@ -210,7 +221,7 @@ async function loadTasks() {
   `).join('');
 }
 
-// Formato de fecha legible
+// Formato de fecha
 function formatDate(date) {
   return new Date(date).toLocaleString('es-ES', {
     day: '2-digit',
@@ -230,7 +241,7 @@ window.editTask = async (id, notes) => {
   }
 };
 
-// Cargar calendario
+// Calendario
 function loadCalendar() {
   const days = document.getElementById('calendar-days');
   days.innerHTML = '';
@@ -250,7 +261,7 @@ function loadCalendar() {
   }
 }
 
-// Cargar estadísticas
+// Dashboard
 async function loadStats() {
   const { data } = await supabase.from('tareas').select('estado, fecha_fin');
   const now = new Date();
@@ -266,20 +277,19 @@ async function loadStats() {
   overdueTasks.textContent = overdue;
 }
 
-// Cargar y buscar usuarios
+// Cargar usuarios
 async function loadUsers() {
   const { data } = await supabase.from('perfiles').select();
 
   if (data) renderUsers(data);
 
-  // Validar que el elemento exista antes de agregar evento
   if (searchUser) {
     searchUser.addEventListener('input', () => {
       const term = searchUser.value.toLowerCase();
-      const filtered = data.filter(u =>
+      const filtered = data?.filter(u =>
         (u.nombre || '').toLowerCase().includes(term) ||
         (u.apellido || '').toLowerCase().includes(term)
-      );
+      ) || [];
       renderUsers(filtered);
     });
   }
@@ -289,7 +299,6 @@ function renderUsers(users) {
   const userContainer = document.getElementById('user-list');
   const noUsersMessage = document.querySelector('.no-users-message');
 
-  // ✅ Validar que el mensaje exista
   if (!noUsersMessage) {
     console.warn('Advertencia: No se encontró .no-users-message. Verifica el HTML.');
     return;
@@ -304,12 +313,10 @@ function renderUsers(users) {
       <div class="user-card">
         <div class="user-info">
           <h3>${u.nombre} ${u.apellido}</h3>
-          <p>${u.empresa || u.nombre}</p>
+          <p>${u.empresa || 'Sin empresa'}</p>
           <p>${u.email}</p>
         </div>
-        <button class="informe-btn">
-          <span>📄</span> Informe
-        </button>
+        <button class="informe-btn"><span>📄</span> Informe</button>
       </div>
     `).join('');
   }
@@ -317,7 +324,7 @@ function renderUsers(users) {
 
 // Exportar PDF (simulado)
 document.getElementById('export-pdf').addEventListener('click', () => {
-  alert('Función: Generar PDF del dashboard (usa jsPDF en producción)');
+  alert('Función: Generar PDF del dashboard');
 });
 document.getElementById('export-user-pdf').addEventListener('click', () => {
   alert('Función: Generar PDF de usuarios');
@@ -355,28 +362,25 @@ addUserForm.addEventListener('submit', async (e) => {
   const email = document.getElementById('add-user-email').value.trim();
   const empresa = document.getElementById('empresa').value.trim();
 
-  // Validaciones
   if (!nombre || !apellido || !email) {
-    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
+    alert('Completa todos los campos obligatorios');
     return;
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    alert('Por favor, ingresa un correo válido');
+    alert('Correo inválido');
     return;
   }
 
-  // Insertar en la tabla 'perfiles'
   const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
-
   if (error) {
-    alert('Error al guardar el usuario: ' + error.message);
+    alert('Error: ' + error.message);
   } else {
     alert('✅ Usuario agregado con éxito');
     userModal.classList.add('hidden');
     addUserForm.reset();
-    loadUsers(); // Actualiza la lista
+    loadUsers();
   }
 });
 
