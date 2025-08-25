@@ -1,8 +1,6 @@
 import { supabase } from './lib/supabaseClient.js';
+
 // Elementos del DOM
-const userModal = document.getElementById('user-modal');
-
-
 const loginForm = document.getElementById('login-form');
 const authMessage = document.getElementById('auth-message');
 const loginScreen = document.getElementById('login-screen');
@@ -31,10 +29,15 @@ const completedTasks = document.getElementById('completed-tasks');
 const taskForm = document.getElementById('task-form');
 const taskList = document.getElementById('task-list');
 
-// Gestión de usuarios
-
+// Búsqueda de usuarios
 const searchUser = document.getElementById('search-user');
 const userList = document.getElementById('user-list');
+
+// Formulario emergente de agregar usuario
+const toggleUserFormBtn = document.getElementById('toggle-user-form');
+const userFormContainer = document.getElementById('user-form-container');
+const addUserForm = document.getElementById('add-user-form');
+const cancelUserFormBtn = document.getElementById('cancel-user-form');
 
 // PWA: Registrar service worker
 if ('serviceWorker' in navigator) {
@@ -43,16 +46,15 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('Error al registrar SW:', err));
 }
 
-// Verificar sesión del usuario
+// Verificar sesión
 async function checkUser() {
-  const {  data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     showApp(session.user);
   } else {
     showLogin();
   }
 
-  // Escuchar cambios de autenticación
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
       showApp(session.user);
@@ -62,7 +64,7 @@ async function checkUser() {
   });
 }
 
-// Mostrar pantalla de login
+// Mostrar login
 function showLogin() {
   loginScreen.classList.remove('hidden');
   mainApp.classList.add('hidden');
@@ -95,7 +97,7 @@ loginForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Registro de usuario
+// Registro
 document.getElementById('register-btn').addEventListener('click', async () => {
   const emailInput = document.getElementById('login-email');
   const passwordInput = document.getElementById('login-password');
@@ -141,65 +143,63 @@ logoutBtn.addEventListener('click', async () => {
   await supabase.auth.signOut();
 });
 
-// Navegación entre pantallas
+// Navegación
 function showScreen(screen) {
   [dashboard, calendar, tasks, users].forEach(s => s.classList.add('hidden'));
   screen.classList.remove('hidden');
 }
 
-// Navegación con reseteo de estado
-navDashboard.addEventListener('click', () => {
-  if (userModal) userModal.classList.add('hidden');
-  showScreen(dashboard);
-});
-
-navCalendar.addEventListener('click', () => {
-  if (userModal) userModal.classList.add('hidden');
-  showScreen(calendar);
-});
-
-navTasks.addEventListener('click', () => {
-  if (userModal) userModal.classList.add('hidden');
-  showScreen(tasks);
-});
-
+navDashboard.addEventListener('click', () => showScreen(dashboard));
+navCalendar.addEventListener('click', () => showScreen(calendar));
+navTasks.addEventListener('click', () => showScreen(tasks));
 navUsers.addEventListener('click', () => {
-showScreen(users);
-  // ✅ Resetear: cerrar modal y limpiar formulario
- if (userModal) userModal.classList.add('hidden');
- // Mostrar la sección de usuarios
-  [dashboard, calendar, tasks].forEach(s => s.classList.add('hidden'));
-  users.classList.remove('hidden');
- // Recargar la lista de usuarios
+  showScreen(users);
   loadUsers();
 });
 
-// Guardar nueva tarea
-taskForm.addEventListener('submit', async (e) => {
+// Formulario emergente de agregar usuario
+toggleUserFormBtn.addEventListener('click', () => {
+  const isHidden = userFormContainer.classList.contains('hidden');
+  userFormContainer.classList.toggle('hidden', !isHidden);
+  toggleUserFormBtn.textContent = isHidden ? 'Cerrar Formulario' : '+ Agregar Usuario';
+});
+
+// Cancelar formulario
+cancelUserFormBtn.addEventListener('click', () => {
+  userFormContainer.classList.add('hidden');
+  toggleUserFormBtn.textContent = '+ Agregar Usuario';
+  addUserForm.reset();
+});
+
+// Guardar nuevo usuario
+addUserForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const title = document.getElementById('task-title').value;
-  const desc = document.getElementById('task-desc').value;
-  const start = document.getElementById('task-start').value;
-  const end = document.getElementById('task-end').value;
-  const notes = document.getElementById('task-notes').value;
 
-  const { error } = await supabase.from('tareas').insert([{
-    titulo: title,
-    descripcion: desc,
-    fecha_inicio: start,
-    fecha_fin: end,
-    observaciones: notes,
-    usuario_id: supabase.auth.user()?.id,
-    estado: 'pendiente'
-  }]);
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const empresa = document.getElementById('empresa').value.trim();
 
+  if (!nombre || !apellido || !email) {
+    alert('Completa todos los campos obligatorios');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Correo inválido');
+    return;
+  }
+
+  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
   if (error) {
-    alert('Error al guardar: ' + error.message);
+    alert('Error: ' + error.message);
   } else {
-    taskForm.reset();
-    loadTasks();
-    loadCalendar();
-    loadStats();
+    alert('✅ Usuario agregado con éxito');
+    addUserForm.reset();
+    userFormContainer.classList.add('hidden');
+    toggleUserFormBtn.textContent = '+ Agregar Usuario';
+    loadUsers();
   }
 });
 
@@ -255,9 +255,7 @@ function loadCalendar() {
     dayEl.classList.add('day');
     dayEl.textContent = date.getDate();
     dayEl.dataset.date = date.toISOString().split('T')[0];
-    dayEl.addEventListener('click', () => {
-      alert(`Tareas programadas para ${dayEl.dataset.date}`);
-    });
+    dayEl.addEventListener('click', () => alert(`Tareas del ${dayEl.dataset.date}`));
     days.appendChild(dayEl);
   }
 }
@@ -278,7 +276,7 @@ async function loadStats() {
   overdueTasks.textContent = overdue;
 }
 
-// Cargar usuarios
+// Cargar y buscar usuarios
 async function loadUsers() {
   const { data } = await supabase.from('perfiles').select();
 
@@ -297,20 +295,15 @@ async function loadUsers() {
 }
 
 function renderUsers(users) {
-  const userContainer = document.getElementById('user-list');
   const noUsersMessage = document.querySelector('.no-users-message');
-
-  if (!noUsersMessage) {
-    console.warn('Advertencia: No se encontró .no-users-message. Verifica el HTML.');
-    return;
-  }
+  if (!noUsersMessage) return;
 
   if (users.length === 0) {
-    userContainer.innerHTML = '';
+    userList.innerHTML = '';
     noUsersMessage.classList.remove('hidden');
   } else {
     noUsersMessage.classList.add('hidden');
-    userContainer.innerHTML = users.map(u => `
+    userList.innerHTML = users.map(u => `
       <div class="user-card">
         <div class="user-info">
           <h3>${u.nombre} ${u.apellido}</h3>
@@ -331,108 +324,5 @@ document.getElementById('export-user-pdf').addEventListener('click', () => {
   alert('Función: Generar PDF de usuarios');
 });
 
-
-// Elementos del modal de agregar usuario
-const addUserBtn = document.getElementById('add-user-btn');
-//const addUserModal = document.getElementById('add-user-modal');
-const addUserForm = document.getElementById('add-user-form');
-const cancelUserBtn = document.getElementById('cancel-user');
-
-
-
-// Guardar nuevo usuario
-addUserForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const nombre = document.getElementById('nombre').value.trim();
-  const apellido = document.getElementById('apellido').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const empresa = document.getElementById('empresa').value.trim();
-
-  // Validaciones
-  if (!nombre || !apellido || !email) {
-    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    alert('Por favor, ingresa un correo válido');
-    return;
-  }
-
-  // Insertar en la tabla 'perfiles'
-  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
-
-  if (error) {
-    alert('Error al guardar el usuario: ' + error.message);
-  } else {
-    alert('✅ Usuario agregado con éxito');
-    addUserForm.reset();
-    loadUsers(); // Actualiza la lista
-  }
-});
-
-// Elementos del formulario
-const toggleUserFormBtn = document.getElementById('toggle-user-form');
-const userFormContainer = document.getElementById('user-form-container');
-
-const cancelUserFormBtn = document.getElementById('cancel-user-form');
-
-// Alternar visibilidad del formulario y cambiar texto del botón
-toggleUserFormBtn.addEventListener('click', () => {
-  const isHidden = userFormContainer.classList.contains('hidden');
-  
-  userFormContainer.classList.toggle('hidden', !isHidden);
-  
-  // Cambiar texto del botón
-  if (isHidden) {
-    toggleUserFormBtn.textContent = 'Cerrar Formulario';
-  } else {
-    toggleUserFormBtn.textContent = '+ Agregar Usuario';
-  }
-});
-
-// Cerrar el formulario al hacer clic en "Cancelar"
-cancelUserFormBtn.addEventListener('click', () => {
-  userFormContainer.classList.add('hidden');
-  toggleUserFormBtn.textContent = '+ Agregar Usuario';
-  addUserForm.reset();
-});
-
-// Guardar nuevo usuario
-addUserForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const nombre = document.getElementById('nombre').value.trim();
-  const apellido = document.getElementById('apellido').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const empresa = document.getElementById('empresa').value.trim();
-
-  // Validaciones
-  if (!nombre || !apellido || !email) {
-    alert('Por favor, completa los campos obligatorios: Nombre, Apellido y Correo');
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    alert('Por favor, ingresa un correo válido');
-    return;
-  }
-
-  // Guardar en Supabase
-  const { error } = await supabase.from('perfiles').insert([{ nombre, apellido, email, empresa }]);
-
-  if (error) {
-    alert('Error al guardar el usuario: ' + error.message);
-  } else {
-    alert('✅ Usuario agregado con éxito');
-    addUserForm.reset();
-    userFormContainer.classList.add('hidden');
-    toggleUserFormBtn.textContent = '+ Agregar Usuario';
-    loadUsers(); // Actualiza la lista
-  }
-});
-// Iniciar la app
+// Iniciar app
 checkUser();

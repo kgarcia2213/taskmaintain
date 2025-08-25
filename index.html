@@ -10,6 +10,7 @@
 </head>
 <body>
   <div id="app">
+    <!-- Pantalla de Login -->
     <div id="login-screen">
       <h1>TaskMaintain</h1>
       <form id="login-form">
@@ -21,6 +22,7 @@
       <p id="auth-message"></p>
     </div>
 
+    <!-- App Principal -->
     <div id="main-app" class="hidden">
       <header>
         <h1>TaskMaintain</h1>
@@ -35,6 +37,7 @@
       </nav>
 
       <main>
+        <!-- Dashboard -->
         <section id="dashboard" class="screen">
           <h2>Dashboard</h2>
           <div class="stats">
@@ -46,11 +49,13 @@
           <button id="export-pdf">Exportar PDF del Dashboard</button>
         </section>
 
+        <!-- Calendario -->
         <section id="calendar" class="screen hidden">
           <h2>Calendario de Mantenimientos</h2>
           <div id="calendar-days"></div>
         </section>
 
+        <!-- Tareas -->
         <section id="tasks" class="screen hidden">
           <h2>Mis Tareas</h2>
           <form id="task-form">
@@ -64,45 +69,44 @@
           <div id="task-list">Cargando...</div>
         </section>
 
-       <!-- Sección Usuarios -->
+        <!-- Usuarios -->
         <section id="users" class="screen hidden">
-        <h2>Usuarios</h2>
-         <!-- Búsqueda de usuarios -->
-        <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
+          <h2>Usuarios</h2>
 
-        <!-- Lista de usuarios -->
-        <div id="user-list">
+          <!-- Búsqueda de usuarios -->
+          <input type="text" id="search-user" placeholder="Buscar por nombre o apellido" />
+
+          <!-- Lista de usuarios -->
+          <div id="user-list">
             <div class="no-users-message hidden">No existen usuarios aún configurados</div>
-        </div>
+          </div>
 
           <!-- Botón toggle: cambia entre "Agregar" y "Cerrar" -->
-        <button id="toggle-user-form" type="button">+ Agregar Usuario</button>
+          <button id="toggle-user-form" type="button">+ Agregar Usuario</button>
 
-        <!-- Formulario que aparece/oculta -->
-        <div id="user-form-container" class="form-container hidden">
+          <!-- Formulario emergente -->
+          <div id="user-form-container" class="form-container hidden">
             <h3>Agregar Nuevo Usuario</h3>
             <form id="add-user-form">
-            <input type="text" id="nombre" placeholder="Nombre" required />
-            <input type="text" id="apellido" placeholder="Apellido" required />
-            <input type="email" id="email" placeholder="Correo electrónico" required />
-            <input type="text" id="empresa" placeholder="Empresa (opcional)" />
-            <div class="form-buttons">
+              <input type="text" id="nombre" placeholder="Nombre" required />
+              <input type="text" id="apellido" placeholder="Apellido" required />
+              <input type="email" id="email" placeholder="Correo electrónico" required />
+              <input type="text" id="empresa" placeholder="Empresa (opcional)" />
+              <div class="form-buttons">
                 <button type="submit">Guardar Usuario</button>
                 <button type="button" id="cancel-user-form">Cancelar</button>
-            </div>
+              </div>
             </form>
-        </div>
+          </div>
 
-
-  
-        <button id="export-user-pdf">Exportar PDF de Usuarios</button>
+          <!-- Exportar PDF -->
+          <button id="export-user-pdf">Exportar PDF de Usuarios</button>
         </section>
-
-
       </main>
     </div>
   </div>
 
+  <!-- Supabase + App -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
